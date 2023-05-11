@@ -20,6 +20,33 @@ int main(int argc, char *argv[])
         R_COUNT  // Number of Registers
     };
 
+    // Condition Flags
+    enum {
+        FL_POS = 1 << 0,  // P
+        FL_ZRO = 1 << 1,  // Z
+        FL_NEG = 1 << 2   // N
+    };
+
+    // Instructions
+    enum {
+        OP_BR,   // Branch
+        OP_ADD,  // Add
+        OP_LD,   // Load
+        OP_ST,   // Store
+        OP_JSR,  // Jump Register
+        OP_AND,  // Bitwise AND
+        OP_LDR,  // Load Register
+        OP_STR,  // Store Register
+        OP_RTI,  // Unused
+        OP_NOT,  // Bitwise NOT
+        OP_LDI,  // Load Indirect
+        OP_STI,  // Store Indirect
+        OP_JMP,  // Jump
+        OP_RES,  // Reserved (Unused)
+        OP_LEA,  // Load Effective Address
+        OP_TRAP  // Execute Trap
+    };
+
     uint16_t memory[MAX_MEMORY];  // 16-bit memory for VM (64 KB)
     uint16_t reg[R_COUNT];        // 16-bit registers
 
