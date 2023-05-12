@@ -49,9 +49,9 @@ uint16_t memory[MAX_MEMORY];  // 16-bit memory for VM (64 KB)
 uint16_t reg[R_COUNT];        // 16-bit registers
 
 // Function definitions
-uint16_t mem_read(uint16_t address);
-uint16_t extend_sign(uint16_t bits, int bitCount);
-void update_flags(uint16_t regMarker);
+uint16_t memRead(uint16_t address);
+uint16_t extendSign(uint16_t bits, int bitCount);
+void updateFlags(uint16_t regMarker);
 
 int main(int argc, char *argv[])
 {
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     int running = 1;
     while (running) {
         // Fetch the instruction from the PC
-        uint16_t instruction = mem_read(reg[R_PC]++);
+        uint16_t instruction = memRead(reg[R_PC]++);
         uint16_t opCode = instruction >> 12;  // Get 4 leftmost bits for opCode
 
         switch (opCode) {
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
  * bitCount: The number of bits contained in the original argument value
  * return: 16-bit int value with respect for Two's Complement
  */
-uint16_t extend_sign(uint16_t bits, int bitCount)
+uint16_t extendSign(uint16_t bits, int bitCount)
 {
     if ((bits >> (bitCount - 1)) & 1) {
         bits |= (0xFFFF << bitCount);
