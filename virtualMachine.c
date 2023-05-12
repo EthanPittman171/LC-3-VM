@@ -3,55 +3,58 @@
 
 #define MAX_MEMORY (1 << 16)  // 16-bits (65536 in decimal)
 
+// Registers
+enum {
+    R_R0,    // General Register 0
+    R_R1,    // General Register 1
+    R_R2,    // General Register 2
+    R_R3,    // General Register 3
+    R_R4,    // General Register 4
+    R_R5,    // General Register 5
+    R_R6,    // General Register 6
+    R_R7,    // General Register 7
+    R_PC,    // Program Counter
+    R_COND,  // Flag Register
+    R_COUNT  // Number of Registers
+};
+
+// Condition Flags
+enum {
+    FL_POS = 1 << 0,  // P
+    FL_ZRO = 1 << 1,  // Z
+    FL_NEG = 1 << 2   // N
+};
+
+// Instructions
+enum {
+    OP_BR,   // Branch (opCode = 0000)
+    OP_ADD,  // Add (opCode = 0001)
+    OP_LD,   // Load (opCode = 0010)
+    OP_ST,   // Store (opCode = 0011)
+    OP_JSR,  // Jump Register (opCode = 0100)
+    OP_AND,  // Bitwise AND (opCode = 0101)
+    OP_LDR,  // Load Register (opCode = 0110)
+    OP_STR,  // Store Register (opCode = 0111)
+    OP_RTI,  // Unused (opCode = 1000)
+    OP_NOT,  // Bitwise NOT (opCode = 1001)
+    OP_LDI,  // Load Indirect (opCode = 1010)
+    OP_STI,  // Store Indirect (opCode = 1011)
+    OP_JMP,  // Jump (opCode = 1100)
+    OP_RES,  // Reserved (Unused) (opCode = 1101)
+    OP_LEA,  // Load Effective Address (opCode = 1110)
+    OP_TRAP  // Execute Trap (opCode = 1111)
+};
+
+uint16_t memory[MAX_MEMORY];  // 16-bit memory for VM (64 KB)
+uint16_t reg[R_COUNT];        // 16-bit registers
+
+// Function definitions
 uint16_t mem_read(uint16_t address);
+uint16_t extend_sign(uint16_t bits, int bitCount);
+void update_flags(uint16_t regMarker);
 
 int main(int argc, char *argv[])
 {
-    // Registers
-    enum {
-        R_R0,    // General Register 0
-        R_R1,    // General Register 1
-        R_R2,    // General Register 2
-        R_R3,    // General Register 3
-        R_R4,    // General Register 4
-        R_R5,    // General Register 5
-        R_R6,    // General Register 6
-        R_R7,    // General Register 7
-        R_PC,    // Program Counter
-        R_COND,  // Flag Register
-        R_COUNT  // Number of Registers
-    };
-
-    // Condition Flags
-    enum {
-        FL_POS = 1 << 0,  // P
-        FL_ZRO = 1 << 1,  // Z
-        FL_NEG = 1 << 2   // N
-    };
-
-    // Instructions
-    enum {
-        OP_BR,   // Branch (opCode = 0000)
-        OP_ADD,  // Add (opCode = 0001)
-        OP_LD,   // Load (opCode = 0010)
-        OP_ST,   // Store (opCode = 0011)
-        OP_JSR,  // Jump Register (opCode = 0100)
-        OP_AND,  // Bitwise AND (opCode = 0101)
-        OP_LDR,  // Load Register (opCode = 0110)
-        OP_STR,  // Store Register (opCode = 0111)
-        OP_RTI,  // Unused (opCode = 1000)
-        OP_NOT,  // Bitwise NOT (opCode = 1001)
-        OP_LDI,  // Load Indirect (opCode = 1010)
-        OP_STI,  // Store Indirect (opCode = 1011)
-        OP_JMP,  // Jump (opCode = 1100)
-        OP_RES,  // Reserved (Unused) (opCode = 1101)
-        OP_LEA,  // Load Effective Address (opCode = 1110)
-        OP_TRAP  // Execute Trap (opCode = 1111)
-    };
-
-    uint16_t memory[MAX_MEMORY];  // 16-bit memory for VM (64 KB)
-    uint16_t reg[R_COUNT];        // 16-bit registers
-
     reg[R_COND] = FL_ZRO;  // Set initial condition flag
 
     // Set initial value of PC
