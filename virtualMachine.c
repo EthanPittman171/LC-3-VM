@@ -125,3 +125,22 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+/*
+ * If a value is negative, extend the bits to 16 bits such that the
+ * the value remains negative. For example, 1 1111 will become
+ * 1111 1111 1111 1111. For positive values, just fill in 0's to get
+ * 16 bits (done by casting as a 16-bit int in the parameter).
+ *
+ * bits: The bits to be converted into a 16-bit int value
+ * bitCount: The number of bits contained in the original argument value
+ * return: 16-bit int value with respect for Two's Complement
+ */
+uint16_t extend_sign(uint16_t bits, int bitCount)
+{
+    if ((bits >> (bitCount - 1)) & 1) {
+        bits |= (0xFFFF << bitCount);
+    }
+
+    return bits;
+}
