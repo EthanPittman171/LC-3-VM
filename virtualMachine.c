@@ -31,22 +31,22 @@ int main(int argc, char *argv[])
 
     // Instructions
     enum {
-        OP_BR,   // Branch
-        OP_ADD,  // Add
-        OP_LD,   // Load
-        OP_ST,   // Store
-        OP_JSR,  // Jump Register
-        OP_AND,  // Bitwise AND
-        OP_LDR,  // Load Register
-        OP_STR,  // Store Register
-        OP_RTI,  // Unused
-        OP_NOT,  // Bitwise NOT
-        OP_LDI,  // Load Indirect
-        OP_STI,  // Store Indirect
-        OP_JMP,  // Jump
-        OP_RES,  // Reserved (Unused)
-        OP_LEA,  // Load Effective Address
-        OP_TRAP  // Execute Trap
+        OP_BR,   // Branch (opCode = 0000)
+        OP_ADD,  // Add (opCode = 0001)
+        OP_LD,   // Load (opCode = 0010)
+        OP_ST,   // Store (opCode = 0011)
+        OP_JSR,  // Jump Register (opCode = 0100)
+        OP_AND,  // Bitwise AND (opCode = 0101)
+        OP_LDR,  // Load Register (opCode = 0110)
+        OP_STR,  // Store Register (opCode = 0111)
+        OP_RTI,  // Unused (opCode = 1000)
+        OP_NOT,  // Bitwise NOT (opCode = 1001)
+        OP_LDI,  // Load Indirect (opCode = 1010)
+        OP_STI,  // Store Indirect (opCode = 1011)
+        OP_JMP,  // Jump (opCode = 1100)
+        OP_RES,  // Reserved (Unused) (opCode = 1101)
+        OP_LEA,  // Load Effective Address (opCode = 1110)
+        OP_TRAP  // Execute Trap (opCode = 1111)
     };
 
     uint16_t memory[MAX_MEMORY];  // 16-bit memory for VM (64 KB)
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     while (running) {
         // Fetch the instruction from the PC
         uint16_t instruction = mem_read(reg[R_PC]++);
-        uint16_t opCode = instruction >> 12;
+        uint16_t opCode = instruction >> 12;  // Get 4 leftmost bits for opCode
 
         switch (opCode) {
             case OP_BR:
