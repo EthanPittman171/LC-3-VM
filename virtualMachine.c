@@ -48,10 +48,23 @@ enum {
 uint16_t memory[MAX_MEMORY];  // 16-bit memory for VM (64 KB)
 uint16_t reg[R_COUNT];        // 16-bit registers
 
-// Function definitions
+// Function prototypes
 uint16_t memRead(uint16_t address);
 uint16_t extendSign(uint16_t bits, int bitCount);
 void updateFlags(uint16_t regMarker);
+void branch(uint16_t instruction);
+void add(uint16_t instruction);
+void load(uint16_t instruction);
+void store(uint16_t instruction);
+void jumpRegister(uint16_t instruction);
+void bitwiseAnd(uint16_t instruction);
+void loadRegister(uint16_t instruction);
+void storeRegister(uint16_t instruction);
+void bitwiseNot(uint16_t instruction);
+void loadIndirect(uint16_t instruction);
+void storeIndirect(uint16_t instruction);
+void jump(uint16_t instruction);
+void loadEffectiveAddr(uint16_t instruction);
 
 int main(int argc, char *argv[])
 {
