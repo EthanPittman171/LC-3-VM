@@ -31,7 +31,7 @@ enum {
     OP_ADD,  // Add (opCode = 0001)
     OP_LD,   // Load (opCode = 0010)
     OP_ST,   // Store (opCode = 0011)
-    OP_JSR,  // Jump Register (opCode = 0100)
+    OP_JSR,  // Jump to Subroutine (opCode = 0100)
     OP_AND,  // Bitwise AND (opCode = 0101)
     OP_LDR,  // Load Register (opCode = 0110)
     OP_STR,  // Store Register (opCode = 0111)
@@ -56,7 +56,7 @@ void branch(uint16_t instruction);
 void add(uint16_t instruction);
 void load(uint16_t instruction);
 void store(uint16_t instruction);
-void jumpRegister(uint16_t instruction);
+void jumpToSubroutine(uint16_t instruction);
 void bitwiseAnd(uint16_t instruction);
 void loadRegister(uint16_t instruction);
 void storeRegister(uint16_t instruction);
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
                 store(instruction);
                 break;
             case OP_JSR:
-                // Implement code for Jump Register
+                jumpToSubroutine(instruction);
                 break;
             case OP_AND:
                 // Implement code for Bitwise AND
@@ -237,4 +237,25 @@ void store(uint16_t instruction)
     uint16_t srcReg = (instruction >> 9) & 0x7;
     uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
     memWrite(reg[R_PC] + pcOffset, reg[srcReg]);
+}
+
+/*
+ * Jump to subroutine instruction.
+ *
+ * return: void
+ */
+void jumpToSubroutine(uint16_t instruction)
+{
+    uint16_t r7 = reg[R_PC];
+    uint16_t addrFlag = (instruction >> 11) & 0x1;
+    // If addrFlag is 0, pull address from a register.
+    // Else, use the last 11 bits of the instruction as the PC offset
+    // to get get the address.
+    if (!addrFlag) {
+        uint16_t baseReg = (instruction >> 6) & 0x7;
+        reg[R_PC] = reg[baseReg];
+    } else {
+        uint16_t pcOffset = extendSign(instruction & 0x7FF, 11);
+        reg[R_PC] += pcOffset;
+    }
 }
