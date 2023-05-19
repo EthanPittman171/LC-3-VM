@@ -190,6 +190,6 @@ void branch(uint16_t instruction)
     // if ((n AND N) OR (z AND Z) OR (p AND P))
     if (conditionFlag & reg[R_COND]) {
         uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
-        reg[R_PC] += pcOffset;  // PC = PC‡ + SEXT(PCoffset9);
+        reg[R_PC] += pcOffset;  // PC = PC‡ + SEXT(PCoffset9)
     }
 }
