@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 
         switch (opCode) {
             case OP_BR:
-                // Implement code for Branch
+                branch(instruction);
                 break;
             case OP_ADD:
                 // Implement code for Add
@@ -175,5 +175,21 @@ void updateFlags(uint16_t regMarker)
         reg[R_COND] = FL_ZRO;
     } else {
         reg[R_COND] = FL_POS;
+    }
+}
+
+/*
+ * Branch operation to specify a new set of instructions to begin implementing
+ * based on conditions set in the condition register.
+ *
+ * return: void
+ */
+void branch(uint16_t instruction)
+{
+    uint16_t conditionFlag = (instruction >> 9) & 0x7;  // Test bits 11 - 9 for condition check
+    // if ((n AND N) OR (z AND Z) OR (p AND P))
+    if (conditionFlag & reg[R_COND]) {
+        uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
+        reg[R_PC] += pcOffset;  // PC = PC‡ + SEXT(PCoffset9);
     }
 }
