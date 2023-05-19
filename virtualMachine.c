@@ -144,3 +144,23 @@ uint16_t extendSign(uint16_t bits, int bitCount)
 
     return bits;
 }
+
+/*
+ * Write if a value written to a register is negative, zero, or
+ * positive in the condition register.
+ *
+ * regMarker: Marks the register being examined for the condition flag.
+ * return: Void
+ */
+void updateFlags(uint16_t regMarker)
+{
+    // Using two'c compliment, a 1 being in the leftmost bit indicates
+    // a negative value.
+    if (reg[regMarker] >> 15) {
+        reg[R_COND] = FL_NEG;
+    } else if (reg[regMarker] == 0) {
+        reg[R_COND] = FL_ZRO;
+    } else {
+        reg[R_COND] = FL_POS;
+    }
+}
