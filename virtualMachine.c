@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
                 add(instruction);
                 break;
             case OP_LD:
-                // Implement code for Load
+                load(instruction);
                 break;
             case OP_ST:
                 // Implement code for Store
@@ -211,4 +211,17 @@ void add(uint16_t instruction)
         uint16_t imm5 = extendSign(instruction & 0x1F, 5);  // second number to add (given 5 bit value)
         reg[dr] = reg[sr1] + imm5;
     }
+}
+
+/*
+ * Load instruction to move data in memory to a register.
+ *
+ * return: void
+ */
+void load(uint16_t instruction)
+{
+    uint16_t dr = (instruction >> 9) & 0x7;  // destination register
+    uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
+    reg[dr] = memRead(reg[R_PC] + pcOffset);
+    updateFlags(dr);
 }
