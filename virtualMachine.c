@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
                 branch(instruction);
                 break;
             case OP_ADD:
-                // Implement code for Add
+                add(instruction);
                 break;
             case OP_LD:
                 // Implement code for Load
@@ -191,5 +191,24 @@ void branch(uint16_t instruction)
     if (conditionFlag & reg[R_COND]) {
         uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
         reg[R_PC] += pcOffset;  // PC = PC‡ + SEXT(PCoffset9)
+    }
+}
+
+/*
+ * Add operation
+ *
+ * return: void
+ */
+void add(uint16_t instruction)
+{
+    uint16_t dr = (instruction >> 9) & 0x7;       // destination register
+    uint16_t immFlag = (instruction >> 5) & 0x1;  // indicates if in immediate mode
+    uint16_t sr1 = (instruction >> 6) & 0x7;      // first number to add (in reg[sr1])
+    if (!immFlag) {
+        uint16_t sr2 = instruction & 0x7;  // second number to add (in reg[sr2])
+        reg[dr] = reg[sr1] + reg[sr2];
+    } else {
+        uint16_t imm5 = extendSign(instruction & 0x1F, 5);  // second number to add (given 5 bit value)
+        reg[dr] = reg[sr1] + imm5;
     }
 }
