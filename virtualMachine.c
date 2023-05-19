@@ -211,6 +211,7 @@ void add(uint16_t instruction)
         uint16_t imm5 = extendSign(instruction & 0x1F, 5);  // second number to add (given 5 bit value)
         reg[dr] = reg[sr1] + imm5;
     }
+    updateFlags(dr);
 }
 
 /*
