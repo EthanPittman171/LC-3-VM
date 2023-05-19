@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
                 load(instruction);
                 break;
             case OP_ST:
-                // Implement code for Store
+                store(instruction);
                 break;
             case OP_JSR:
                 // Implement code for Jump Register
@@ -225,4 +225,16 @@ void load(uint16_t instruction)
     uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
     reg[dr] = memRead(reg[R_PC] + pcOffset);
     updateFlags(dr);
+}
+
+/*
+ * Store instruction to move data in a register to memory.
+ *
+ * return: void
+ */
+void store(uint16_t instruction)
+{
+    uint16_t srcReg = (instruction >> 9) & 0x7;
+    uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
+    memWrite(reg[R_PC] + pcOffset, reg[srcReg]);
 }
