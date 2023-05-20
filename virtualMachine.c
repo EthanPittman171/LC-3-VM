@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
                 jumpToSubroutine(instruction);
                 break;
             case OP_AND:
-                // Implement code for Bitwise AND
+                bitwiseAnd(instruction);
                 break;
             case OP_LDR:
                 // Implement code for Load Register
@@ -204,6 +204,8 @@ void add(uint16_t instruction)
     uint16_t destReg = (instruction >> 9) & 0x7;  // destination register
     uint16_t immFlag = (instruction >> 5) & 0x1;  // indicates if in immediate mode
     uint16_t srcReg1 = (instruction >> 6) & 0x7;  // first number to add (in reg[sr1])
+    // If immFlag is 0, use value stored in reg[srcReg2] for second operand.
+    // Else, use the 5-bit imm5 value with a sign extension.
     if (!immFlag) {
         uint16_t srcReg2 = instruction & 0x7;  // second number to add (in reg[sr2])
         reg[destReg] = reg[srcReg1] + reg[srcReg2];
@@ -258,4 +260,27 @@ void jumpToSubroutine(uint16_t instruction)
         uint16_t pcOffset = extendSign(instruction & 0x7FF, 11);
         reg[R_PC] += pcOffset;
     }
+}
+
+/*
+ * Bitwise AND instruction
+ *
+ * return: void
+ */
+void bitwiseAnd(uint16_t instruction)
+{
+    uint16_t destReg = (instruction >> 9) & 0x7;
+    uint16_t srcReg1 = (instruction >> 6) & 0x7;
+    uint16_t immFlag = (instruction >> 5) & 0x1;
+    // If immFlag is 0, use value is reg[srcReg2] for AND operation.
+    // Else, use the provided 5-bit value in the imm5 postion with a sign
+    // extension for  the AND operation.
+    if (!immFlag) {
+        uint16_t srcReg2 = instruction & 0x7;
+        reg[destReg] = reg[srcReg1] + reg[srcReg2];
+    } else {
+        uint16_t imm5 = extendSign(instruction & 0x1F, 5);
+        reg[destReg] = reg[srcReg1] + imm5;
+    }
+    updateFlags(destReg);
 }
