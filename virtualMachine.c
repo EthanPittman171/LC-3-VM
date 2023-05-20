@@ -33,8 +33,8 @@ enum {
     OP_ST,   // Store (opCode = 0011)
     OP_JSR,  // Jump to Subroutine (opCode = 0100)
     OP_AND,  // Bitwise AND (opCode = 0101)
-    OP_LDR,  // Load Register (opCode = 0110)
-    OP_STR,  // Store Register (opCode = 0111)
+    OP_LDR,  // Load Base + Offset (opCode = 0110)
+    OP_STR,  // Store Base + Offset (opCode = 0111)
     OP_RTI,  // Unused (opCode = 1000)
     OP_NOT,  // Bitwise NOT (opCode = 1001)
     OP_LDI,  // Load Indirect (opCode = 1010)
@@ -58,8 +58,8 @@ void load(uint16_t instruction);
 void store(uint16_t instruction);
 void jumpToSubroutine(uint16_t instruction);
 void bitwiseAnd(uint16_t instruction);
-void loadRegister(uint16_t instruction);
-void storeRegister(uint16_t instruction);
+void loadBaseOffset(uint16_t instruction);
+void storeBaseOffset(uint16_t instruction);
 void bitwiseNot(uint16_t instruction);
 void loadIndirect(uint16_t instruction);
 void storeIndirect(uint16_t instruction);
@@ -101,10 +101,10 @@ int main(int argc, char *argv[])
                 bitwiseAnd(instruction);
                 break;
             case OP_LDR:
-                // Implement code for Load Register
+                loadBaseOffset(instruction);
                 break;
             case OP_STR:
-                // Implement code for Store Register
+                // Implement code for Store Base + Offset
                 break;
             case OP_RTI:
                 // Unused
@@ -282,5 +282,17 @@ void bitwiseAnd(uint16_t instruction)
         uint16_t imm5 = extendSign(instruction & 0x1F, 5);
         reg[destReg] = reg[srcReg1] + imm5;
     }
+    updateFlags(destReg);
+}
+
+/*
+ * Load Base + Offset Instruction
+ */
+void loadBaseOffset(uint16_t instruction)
+{
+    uint16_t destReg = (instruction >> 9) & 0x7;
+    uint16_t baseReg = (instruction >> 6) & 0x7;
+    uint16_t offset = extendSign(instruction & 0x3F, 6);
+    reg[destReg] = memRead(reg[baseReg] + offset);
     updateFlags(destReg);
 }
