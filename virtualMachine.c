@@ -50,6 +50,7 @@ uint16_t reg[R_COUNT];        // 16-bit registers
 
 // Function prototypes
 uint16_t memRead(uint16_t address);
+uint16_t memWrite(uint16_t addr, uint16_t val);
 uint16_t extendSign(uint16_t bits, int bitCount);
 void updateFlags(uint16_t regMarker);
 void branch(uint16_t instruction);
@@ -334,7 +335,7 @@ void loadIndirect(uint16_t instruction)
 {
     uint16_t destReg = (instruction >> 9) & 0x7;
     uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
-    reg[destReg] = memRead(reg[R_PC] + pcOffset);
+    reg[destReg] = memRead(memRead(reg[R_PC] + pcOffset));
     updateFlags(destReg);
 }
 
