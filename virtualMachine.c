@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
                 bitwiseNot(instruction);
                 break;
             case OP_LDI:
-                // Implement code for Load Indirect
+                loadIndirect(instruction);
                 break;
             case OP_STI:
                 // Implement code for Store Indirect
@@ -322,5 +322,18 @@ void bitwiseNot(uint16_t instruction)
     uint16_t destReg = (instruction >> 9) & 0x7;
     uint16_t srcReg = (instruction >> 6) & 0x7;
     reg[destReg] = ~reg[srcReg];
+    updateFlags(destReg);
+}
+
+/*
+ * Load indirect instruction
+ *
+ * return: void
+ */
+void loadIndirect(uint16_t instruction)
+{
+    uint16_t destReg = (instruction >> 9) & 0x7;
+    uint16_t pcOffset = extendSign(instruction >> 0x1FF, 9);
+    reg[destReg] = memRead(reg[R_PC] + pcOffset);
     updateFlags(destReg);
 }
