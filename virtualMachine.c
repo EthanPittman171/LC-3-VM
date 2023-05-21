@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
                 abort();  // op code not used, so close program
                 break;
             case OP_LEA:
-                // Implement code for Load Effective Address
+                loadEffectiveAddr(instruction);
                 break;
             case OP_TRAP:
                 // Implement code for Execute Trap
@@ -359,4 +359,17 @@ void jump(uint16_t instruction)
 {
     uint16_t baseReg = (instruction >> 6) & 0x7;
     reg[R_PC] = reg[baseReg];
+}
+
+/*
+ * Load effective address instruction
+ *
+ * return: void
+ */
+void loadEffectiveAddr(uint16_t instruction)
+{
+    uint16_t destReg = (instruction >> 9) & 0x7;
+    uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
+    reg[destReg] = reg[R_PC] + pcOffset;
+    updateFlags(destReg);
 }
