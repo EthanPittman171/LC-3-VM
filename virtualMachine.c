@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
                 storeIndirect(instruction);
                 break;
             case OP_JMP:
-                // Implement code for Jump
+                jump(instruction);
                 break;
             case OP_RES:
                 abort();  // op code not used, so close program
@@ -348,4 +348,15 @@ void storeIndirect(uint16_t instruction)
     uint16_t srcReg = (instruction >> 9) & 0x7;
     uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
     memWrite(reg[R_PC] + pcOffset, reg[srcReg]);
+}
+
+/*
+ * Jump instruction
+ *
+ * return: void
+ */
+void jump(uint16_t instruction)
+{
+    uint16_t baseReg = (instruction >> 6) & 0x7;
+    reg[R_PC] = reg[baseReg];
 }
