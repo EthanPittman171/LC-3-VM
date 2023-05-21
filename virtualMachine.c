@@ -404,7 +404,7 @@ void executeTrapCode(uint16_t instruction)
     reg[R_R7] = reg[R_PC];
     switch (trapVect) {
         case TRAP_GETC:
-            // Implement code for GETC
+            trapGetc();
             break;
         case TRAP_OUT:
             // Implement code for OUT
@@ -425,4 +425,15 @@ void executeTrapCode(uint16_t instruction)
             abort();  // End program if unknown trap code is present
             break;
     }
+}
+
+/*
+ * Read a single character from the keyboard. The character is not echoed onto the
+ * console. Its ASCII code is copied into R0. The high eight bits of R0 are cleared.
+ */
+void trapGetc()
+{
+    uint16_t inputChar = (uint16_t)getchar();  // High bits are naturally 0
+    reg[R_R0] = inputChar;
+    updateFlags(R_R0);
 }
