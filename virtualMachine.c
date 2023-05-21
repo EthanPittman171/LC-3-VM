@@ -45,6 +45,7 @@ enum {
     OP_TRAP  // Execute Trap (opCode = 1111)
 };
 
+// Trap Codes
 enum {
     TRAP_GETC = 0x20,   // Read a single character from the keyboard. The character is not echoed onto the console.
     TRAP_OUT = 0x21,    // Write a character in a register to the console display.
@@ -76,6 +77,12 @@ void storeIndirect(uint16_t instruction);
 void jump(uint16_t instruction);
 void loadEffectiveAddr(uint16_t instruction);
 void executeTrapCode(uint16_t instruction);
+void trapGetc();
+void trapOut();
+void trapPuts();
+void trapIn();
+void trapPutsp();
+void trapHalt();
 
 int main(int argc, char *argv[])
 {
