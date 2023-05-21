@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
                 loadIndirect(instruction);
                 break;
             case OP_STI:
-                // Implement code for Store Indirect
+                storeIndirect(instruction);
                 break;
             case OP_JMP:
                 // Implement code for Jump
@@ -333,7 +333,19 @@ void bitwiseNot(uint16_t instruction)
 void loadIndirect(uint16_t instruction)
 {
     uint16_t destReg = (instruction >> 9) & 0x7;
-    uint16_t pcOffset = extendSign(instruction >> 0x1FF, 9);
+    uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
     reg[destReg] = memRead(reg[R_PC] + pcOffset);
     updateFlags(destReg);
+}
+
+/*
+ * Store indirect instruction
+ *
+ * return: void
+ */
+void storeIndirect(uint16_t instruction)
+{
+    uint16_t srcReg = (instruction >> 9) & 0x7;
+    uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
+    memWrite(reg[R_PC] + pcOffset, reg[srcReg]);
 }
