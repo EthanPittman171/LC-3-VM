@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
                 abort();  // op code not used, so close program
                 break;
             case OP_NOT:
-                // Implement code for Bitwise NOT
+                bitwiseNot(instruction);
                 break;
             case OP_LDI:
                 // Implement code for Load Indirect
@@ -310,4 +310,17 @@ void storeBaseOffset(uint16_t instruction)
     uint16_t baseReg = (instruction >> 6) & 0x7;
     uint16_t offset = extendSign(instruction & 0x3F, 6);
     memWrite(reg[baseReg] + offset, reg[srcReg]);
+}
+
+/*
+ * Bitwise NOT instruction
+ *
+ * return: void
+ */
+void bitwiseNot(uint16_t instruction)
+{
+    uint16_t destReg = (instruction >> 9) & 0x7;
+    uint16_t srcReg = (instruction >> 6) & 0x7;
+    reg[destReg] = ~reg[srcReg];
+    updateFlags(destReg);
 }
