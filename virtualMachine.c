@@ -45,6 +45,15 @@ enum {
     OP_TRAP  // Execute Trap (opCode = 1111)
 };
 
+enum {
+    TRAP_GETC = 0x20,   // Read a single character from the keyboard. The character is not echoed onto the console.
+    TRAP_OUT = 0x21,    // Write a character in a register to the console display.
+    TRAP_PUTS = 0x22,   // Write a string of ASCII characters to the console display.
+    TRAP_IN = 0x23,     // Print a prompt on the screen and read a single character from the keyboard.
+    TRAP_PUTSP = 0x24,  // Write a string of ASCII characters to the console. (bytes)
+    TRAP_HALT = 0x25    // Halt execution and print a message on the console.
+};
+
 uint16_t memory[MAX_MEMORY];  // 16-bit memory for VM (64 KB)
 uint16_t reg[R_COUNT];        // 16-bit registers
 
