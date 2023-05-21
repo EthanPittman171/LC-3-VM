@@ -407,7 +407,7 @@ void executeTrapCode(uint16_t instruction)
             trapGetc();
             break;
         case TRAP_OUT:
-            // Implement code for OUT
+            trapOut();
             break;
         case TRAP_PUTS:
             // Implement code for PUTS
@@ -430,10 +430,24 @@ void executeTrapCode(uint16_t instruction)
 /*
  * Read a single character from the keyboard. The character is not echoed onto the
  * console. Its ASCII code is copied into R0. The high eight bits of R0 are cleared.
+ *
+ * return: void
  */
 void trapGetc()
 {
     uint16_t inputChar = (uint16_t)getchar();  // High bits are naturally 0
     reg[R_R0] = inputChar;
     updateFlags(R_R0);
+}
+
+/*
+ * Write a character in R0[7:0] to the console display.
+ *
+ * return: void
+ */
+void trapOut()
+{
+    char c = (char)reg[R_R0];  // Character from R0
+    putchar(c);
+    fflush(stdout);  // Force output buffer to be outputted to OS
 }
