@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
                 loadBaseOffset(instruction);
                 break;
             case OP_STR:
-                // Implement code for Store Base + Offset
+                storeBaseOffset(instruction);
                 break;
             case OP_RTI:
                 // Unused
@@ -287,6 +287,8 @@ void bitwiseAnd(uint16_t instruction)
 
 /*
  * Load Base + Offset Instruction
+ *
+ * return: void
  */
 void loadBaseOffset(uint16_t instruction)
 {
@@ -295,4 +297,17 @@ void loadBaseOffset(uint16_t instruction)
     uint16_t offset = extendSign(instruction & 0x3F, 6);
     reg[destReg] = memRead(reg[baseReg] + offset);
     updateFlags(destReg);
+}
+
+/*
+ * Store base + offset instruction
+ *
+ * return: void
+ */
+void storeBaseOffset(uint16_t instruction)
+{
+    uint16_t srcReg = (instruction >> 9) & 0x7;
+    uint16_t baseReg = (instruction >> 6) & 0x7;
+    uint16_t offset = extendSign(instruction & 0x3F, 6);
+    memWrite(reg[baseReg] + offset, reg[srcReg]);
 }
