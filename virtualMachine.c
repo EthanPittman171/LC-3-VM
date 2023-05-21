@@ -75,6 +75,7 @@ void loadIndirect(uint16_t instruction);
 void storeIndirect(uint16_t instruction);
 void jump(uint16_t instruction);
 void loadEffectiveAddr(uint16_t instruction);
+void executeTrapCode(uint16_t instruction);
 
 int main(int argc, char *argv[])
 {
@@ -382,4 +383,39 @@ void loadEffectiveAddr(uint16_t instruction)
     uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
     reg[destReg] = reg[R_PC] + pcOffset;
     updateFlags(destReg);
+}
+
+/*
+ * Execute the trap code provided in 16-bit instruction (will
+ * be contained in bits 7-0).
+ *
+ * return: void
+ */
+void executeTrapCode(uint16_t instruction)
+{
+    uint16_t trapVect = instruction & 0xFF;
+    reg[R_R7] = reg[R_PC];
+    switch (trapVect) {
+        case TRAP_GETC:
+            // Implement code for GETC
+            break;
+        case TRAP_OUT:
+            // Implement code for OUT
+            break;
+        case TRAP_PUTS:
+            // Implement code for PUTS
+            break;
+        case TRAP_IN:
+            // Implement code for IN
+            break;
+        case TRAP_PUTSP:
+            // Implement code for PUTSP
+            break;
+        case TRAP_HALT:
+            // Implement code for HALT
+            break;
+        default:
+            abort();  // End program if unknown trap code is present
+            break;
+    }
 }
