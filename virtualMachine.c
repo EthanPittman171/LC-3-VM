@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
                 storeBaseOffset(instruction);
                 break;
             case OP_RTI:
-                // Unused
+                abort();  // op code not used, so close program
                 break;
             case OP_NOT:
                 // Implement code for Bitwise NOT
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
                 // Implement code for Jump
                 break;
             case OP_RES:
-                // Implement code for Reserved (Unused)
+                abort();  // op code not used, so close program
                 break;
             case OP_LEA:
                 // Implement code for Load Effective Address
