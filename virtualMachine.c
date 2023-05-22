@@ -57,6 +57,7 @@ enum {
 
 uint16_t memory[MAX_MEMORY];  // 16-bit memory for VM (64 KB)
 uint16_t reg[R_COUNT];        // 16-bit registers
+int running = 0;
 
 // Function prototypes
 uint16_t memRead(uint16_t address);
@@ -93,7 +94,7 @@ int main(int argc, char *argv[])
     uint16_t PC_START = 0x3000;
     reg[R_PC] = PC_START;
 
-    int running = 1;
+    running = 1;
     while (running) {
         // Fetch the instruction from the PC
         uint16_t instruction = memRead(reg[R_PC]++);
@@ -410,7 +411,7 @@ void executeTrapCode(uint16_t instruction)
             trapOut();
             break;
         case TRAP_PUTS:
-            // Implement code for PUTS
+            trapPuts();
             break;
         case TRAP_IN:
             // Implement code for IN
@@ -450,4 +451,22 @@ void trapOut()
     char c = (char)reg[R_R0];  // Character from R0
     putchar(c);
     fflush(stdout);  // Force output buffer to be outputted to OS
+}
+
+/*
+ * x22 PUTS Write a string of ASCII characters to the console display. The characters are contained
+ * in consecutive memory locations, one character per memory location, starting with
+ * the address specified in R0. Writing terminates with the occurrence of x0000 in a
+ * memory location.
+ *
+ * return: void
+ */
+void trapPuts()
+{
+    uint16_t *c = memory + reg[R_R0];  // Memory address of where the first char is located
+    while (*c) {
+        putchar((char)*c);
+        c++;  // Move pointer to point to next uint16_t value address (2 bytes)
+    }
+    fflush(stdout);
 }
