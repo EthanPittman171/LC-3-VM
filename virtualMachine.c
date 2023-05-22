@@ -66,11 +66,11 @@ enum {
 
 uint16_t memory[MAX_MEMORY];  // 16-bit memory for VM (64 KB)
 uint16_t reg[R_COUNT];        // 16-bit registers
-int running = 0;
+int running = 0;              // Status controlling if machine is running or not
 
 // Function prototypes
 uint16_t memRead(uint16_t addr);
-uint16_t memWrite(uint16_t addr, uint16_t val);
+void memWrite(uint16_t addr, uint16_t val);
 uint16_t extendSign(uint16_t bits, int bitCount);
 void updateFlags(uint16_t regMarker);
 void branch(uint16_t instruction);
@@ -184,6 +184,16 @@ uint16_t memRead(uint16_t addr)
         }
     }
     return memory[addr];
+}
+
+/*
+ * Write a value to a particular address in memory.
+ *
+ * return: void
+ */
+void memWrite(uint16_t addr, uint16_t val)
+{
+    memory[addr] = val;
 }
 
 /*
