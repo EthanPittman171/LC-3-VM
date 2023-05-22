@@ -45,11 +45,23 @@ enum {
     OP_TRAP  // Execute Trap (opCode = 1111)
 };
 
+// Trap Codes
+enum {
+    TRAP_GETC = 0x20,   // Read a single character from the keyboard. The character is not echoed onto the console.
+    TRAP_OUT = 0x21,    // Write a character in a register to the console display.
+    TRAP_PUTS = 0x22,   // Write a string of ASCII characters to the console display.
+    TRAP_IN = 0x23,     // Print a prompt on the screen and read a single character from the keyboard.
+    TRAP_PUTSP = 0x24,  // Write a string of ASCII characters to the console. (bytes)
+    TRAP_HALT = 0x25    // Halt execution and print a message on the console.
+};
+
 uint16_t memory[MAX_MEMORY];  // 16-bit memory for VM (64 KB)
 uint16_t reg[R_COUNT];        // 16-bit registers
+int running = 0;
 
 // Function prototypes
 uint16_t memRead(uint16_t address);
+uint16_t memWrite(uint16_t addr, uint16_t val);
 uint16_t extendSign(uint16_t bits, int bitCount);
 void updateFlags(uint16_t regMarker);
 void branch(uint16_t instruction);
@@ -65,6 +77,13 @@ void loadIndirect(uint16_t instruction);
 void storeIndirect(uint16_t instruction);
 void jump(uint16_t instruction);
 void loadEffectiveAddr(uint16_t instruction);
+void executeTrapCode(uint16_t instruction);
+void trapGetc();
+void trapOut();
+void trapPuts();
+void trapIn();
+void trapPutsp();
+void trapHalt();
 
 int main(int argc, char *argv[])
 {
@@ -75,7 +94,7 @@ int main(int argc, char *argv[])
     uint16_t PC_START = 0x3000;
     reg[R_PC] = PC_START;
 
-    int running = 1;
+    running = 1;
     while (running) {
         // Fetch the instruction from the PC
         uint16_t instruction = memRead(reg[R_PC]++);
@@ -104,28 +123,28 @@ int main(int argc, char *argv[])
                 loadBaseOffset(instruction);
                 break;
             case OP_STR:
-                // Implement code for Store Base + Offset
+                storeBaseOffset(instruction);
                 break;
             case OP_RTI:
-                // Unused
+                abort();  // op code not used, so close program
                 break;
             case OP_NOT:
-                // Implement code for Bitwise NOT
+                bitwiseNot(instruction);
                 break;
             case OP_LDI:
-                // Implement code for Load Indirect
+                loadIndirect(instruction);
                 break;
             case OP_STI:
-                // Implement code for Store Indirect
+                storeIndirect(instruction);
                 break;
             case OP_JMP:
-                // Implement code for Jump
+                jump(instruction);
                 break;
             case OP_RES:
-                // Implement code for Reserved (Unused)
+                abort();  // op code not used, so close program
                 break;
             case OP_LEA:
-                // Implement code for Load Effective Address
+                loadEffectiveAddr(instruction);
                 break;
             case OP_TRAP:
                 // Implement code for Execute Trap
@@ -287,6 +306,8 @@ void bitwiseAnd(uint16_t instruction)
 
 /*
  * Load Base + Offset Instruction
+ *
+ * return: void
  */
 void loadBaseOffset(uint16_t instruction)
 {
@@ -295,4 +316,219 @@ void loadBaseOffset(uint16_t instruction)
     uint16_t offset = extendSign(instruction & 0x3F, 6);
     reg[destReg] = memRead(reg[baseReg] + offset);
     updateFlags(destReg);
+}
+
+/*
+ * Store base + offset instruction
+ *
+ * return: void
+ */
+void storeBaseOffset(uint16_t instruction)
+{
+    uint16_t srcReg = (instruction >> 9) & 0x7;
+    uint16_t baseReg = (instruction >> 6) & 0x7;
+    uint16_t offset = extendSign(instruction & 0x3F, 6);
+    memWrite(reg[baseReg] + offset, reg[srcReg]);
+}
+
+/*
+ * Bitwise NOT instruction
+ *
+ * return: void
+ */
+void bitwiseNot(uint16_t instruction)
+{
+    uint16_t destReg = (instruction >> 9) & 0x7;
+    uint16_t srcReg = (instruction >> 6) & 0x7;
+    reg[destReg] = ~reg[srcReg];
+    updateFlags(destReg);
+}
+
+/*
+ * Load indirect instruction
+ *
+ * return: void
+ */
+void loadIndirect(uint16_t instruction)
+{
+    uint16_t destReg = (instruction >> 9) & 0x7;
+    uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
+    reg[destReg] = memRead(memRead(reg[R_PC] + pcOffset));
+    updateFlags(destReg);
+}
+
+/*
+ * Store indirect instruction
+ *
+ * return: void
+ */
+void storeIndirect(uint16_t instruction)
+{
+    uint16_t srcReg = (instruction >> 9) & 0x7;
+    uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
+    memWrite(reg[R_PC] + pcOffset, reg[srcReg]);
+}
+
+/*
+ * Jump instruction
+ *
+ * return: void
+ */
+void jump(uint16_t instruction)
+{
+    uint16_t baseReg = (instruction >> 6) & 0x7;
+    reg[R_PC] = reg[baseReg];
+}
+
+/*
+ * Load effective address instruction
+ *
+ * return: void
+ */
+void loadEffectiveAddr(uint16_t instruction)
+{
+    uint16_t destReg = (instruction >> 9) & 0x7;
+    uint16_t pcOffset = extendSign(instruction & 0x1FF, 9);
+    reg[destReg] = reg[R_PC] + pcOffset;
+    updateFlags(destReg);
+}
+
+/*
+ * Execute the trap code provided in 16-bit instruction (will
+ * be contained in bits 7-0).
+ *
+ * return: void
+ */
+void executeTrapCode(uint16_t instruction)
+{
+    uint16_t trapVect = instruction & 0xFF;
+    reg[R_R7] = reg[R_PC];
+    switch (trapVect) {
+        case TRAP_GETC:
+            trapGetc();
+            break;
+        case TRAP_OUT:
+            trapOut();
+            break;
+        case TRAP_PUTS:
+            trapPuts();
+            break;
+        case TRAP_IN:
+            trapIn();
+            break;
+        case TRAP_PUTSP:
+            trapPutsp();
+            break;
+        case TRAP_HALT:
+            trapHalt();
+            break;
+        default:
+            abort();  // End program if unknown trap code is present
+            break;
+    }
+}
+
+/*
+ * Read a single character from the keyboard. The character is not echoed onto the
+ * console. Its ASCII code is copied into R0. The high eight bits of R0 are cleared.
+ *
+ * return: void
+ */
+void trapGetc()
+{
+    uint16_t inputChar = (uint16_t)getchar();  // High bits are naturally 0
+    reg[R_R0] = inputChar;
+    updateFlags(R_R0);
+}
+
+/*
+ * Write a character in R0[7:0] to the console display.
+ *
+ * return: void
+ */
+void trapOut()
+{
+    char c = (char)reg[R_R0];  // Character from R0
+    putchar(c);
+    fflush(stdout);  // Force output buffer to be outputted to OS
+}
+
+/*
+ * x22 PUTS Write a string of ASCII characters to the console display. The characters are contained
+ * in consecutive memory locations, one character per memory location, starting with
+ * the address specified in R0. Writing terminates with the occurrence of x0000 in a
+ * memory location.
+ *
+ * return: void
+ */
+void trapPuts()
+{
+    uint16_t *c = memory + reg[R_R0];  // Memory address of where the first char is located
+    while (*c) {
+        putchar((char)*c);
+        c++;  // Move pointer to point to next uint16_t value address (2 bytes)
+    }
+    fflush(stdout);
+}
+
+/*
+ * Print a prompt on the screen and read a single character from the keyboard. The
+ * character is echoed onto the console monitor, and its ASCII code is copied into R0.
+ * The high eight bits of R0 are cleared.
+ *
+ * return: void
+ */
+void trapIn()
+{
+    // Get character and echo it on the screen
+    printf("Enter a single character: ");
+    char c = getchar();
+    putchar(c);
+    fflush(stdout);
+
+    // Store character in r0 and update flag
+    reg[R_R0] = (uint16_t)c;  // high eight bits are naturally 0
+    updateFlags(R_R0);
+}
+
+/*
+ * Write a string of ASCII characters to the console. The characters are contained in
+ * consecutive memory locations, two characters per memory location, starting with the
+ * address specified in R0. The ASCII code contained in bits [7:0] of a memory location
+ * is written to the console first. Then the ASCII code contained in bits [15:8] of that
+ * memory location is written to the console. (A character string consisting of an odd
+ * number of characters to be written will have x00 in bits [15:8] of the memory
+ * location containing the last character to be written.) Writing terminates with the
+ * occurrence of x0000 in a memory location.
+ *
+ * return: void
+ */
+void trapPutsp()
+{
+    uint16_t *c = memory + reg[R_R0];
+    while (*c) {
+        // The rightmost eight bits will contain one character while the leftmost
+        // eight bits will possibly contain another character (assuming there is
+        // an even number of characters in the string).
+        char rightChar = ((char)*c) & 0xFF;
+        char leftChar = ((char)*c) >> 8;
+        putchar(rightChar);
+        if (leftChar) {
+            putchar(leftChar);
+        }
+        c++;  // Move pointer to point to next uint16_t value address (2 bytes)
+    }
+    fflush(stdout);
+}
+
+/*
+ * Halt execution and print a message on the console.
+ *
+ * return: void
+ */
+void trapHalt()
+{
+    prtinf("Machine has halted\n");
+    fflush(stdout);
+    running = 0;
 }
