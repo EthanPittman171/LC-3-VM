@@ -414,7 +414,7 @@ void executeTrapCode(uint16_t instruction)
             trapPuts();
             break;
         case TRAP_IN:
-            // Implement code for IN
+            trapIn();
             break;
         case TRAP_PUTSP:
             // Implement code for PUTSP
@@ -469,4 +469,22 @@ void trapPuts()
         c++;  // Move pointer to point to next uint16_t value address (2 bytes)
     }
     fflush(stdout);
+}
+
+/*
+ * Print a prompt on the screen and read a single character from the keyboard. The
+ * character is echoed onto the console monitor, and its ASCII code is copied into R0.
+ * The high eight bits of R0 are cleared.
+ */
+void trapIn()
+{
+    // Get character and echo it on the screen
+    printf("Enter a single character: ");
+    char c = getchar();
+    putchar(c);
+    fflush(stdout);
+
+    // Store character in r0 and update flag
+    reg[R_R0] = (uint16_t)c;  // high eight bits are naturally 0
+    updateFlags(R_R0);
 }
