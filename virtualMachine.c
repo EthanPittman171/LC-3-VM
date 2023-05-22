@@ -420,7 +420,7 @@ void executeTrapCode(uint16_t instruction)
             trapPutsp();
             break;
         case TRAP_HALT:
-            // Implement code for HALT
+            trapHalt();
             break;
         default:
             abort();  // End program if unknown trap code is present
@@ -519,4 +519,16 @@ void trapPutsp()
         c++;  // Move pointer to point to next uint16_t value address (2 bytes)
     }
     fflush(stdout);
+}
+
+/*
+ * Halt execution and print a message on the console.
+ *
+ * return: void
+ */
+void trapHalt()
+{
+    prtinf("Machine has halted\n");
+    fflush(stdout);
+    running = 0;
 }
