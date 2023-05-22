@@ -417,7 +417,7 @@ void executeTrapCode(uint16_t instruction)
             trapIn();
             break;
         case TRAP_PUTSP:
-            // Implement code for PUTSP
+            trapPutsp();
             break;
         case TRAP_HALT:
             // Implement code for HALT
@@ -475,6 +475,8 @@ void trapPuts()
  * Print a prompt on the screen and read a single character from the keyboard. The
  * character is echoed onto the console monitor, and its ASCII code is copied into R0.
  * The high eight bits of R0 are cleared.
+ *
+ * return: void
  */
 void trapIn()
 {
@@ -487,4 +489,34 @@ void trapIn()
     // Store character in r0 and update flag
     reg[R_R0] = (uint16_t)c;  // high eight bits are naturally 0
     updateFlags(R_R0);
+}
+
+/*
+ * Write a string of ASCII characters to the console. The characters are contained in
+ * consecutive memory locations, two characters per memory location, starting with the
+ * address specified in R0. The ASCII code contained in bits [7:0] of a memory location
+ * is written to the console first. Then the ASCII code contained in bits [15:8] of that
+ * memory location is written to the console. (A character string consisting of an odd
+ * number of characters to be written will have x00 in bits [15:8] of the memory
+ * location containing the last character to be written.) Writing terminates with the
+ * occurrence of x0000 in a memory location.
+ *
+ * return: void
+ */
+void trapPutsp()
+{
+    uint16_t *c = memory + reg[R_R0];
+    while (*c) {
+        // The rightmost eight bits will contain one character while the leftmost
+        // eight bits will possibly contain another character (assuming there is
+        // an even number of characters in the string).
+        char rightChar = ((char)*c) & 0xFF;
+        char leftChar = ((char)*c) >> 8;
+        putchar(rightChar);
+        if (leftChar) {
+            putchar(leftChar);
+        }
+        c++;  // Move pointer to point to next uint16_t value address (2 bytes)
+    }
+    fflush(stdout);
 }
