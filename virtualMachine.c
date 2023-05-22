@@ -18,6 +18,15 @@ enum {
     R_COUNT  // Number of Registers
 };
 
+// Device registers
+enum {
+    DR_KBSR = 0xFE00,  // Keyboard status register
+    DR_KBDR = 0xFE02,  // Keyboard data register
+    DR_DSR = 0xFE04,   // Display status register
+    DR_DDR = 0xFE06,   // Display data register
+    DR_MCR = 0xFFFE    // Machine control register
+};
+
 // Condition Flags
 enum {
     FL_POS = 1 << 0,  // P
@@ -60,7 +69,7 @@ uint16_t reg[R_COUNT];        // 16-bit registers
 int running = 0;
 
 // Function prototypes
-uint16_t memRead(uint16_t address);
+uint16_t memRead(uint16_t addr);
 uint16_t memWrite(uint16_t addr, uint16_t val);
 uint16_t extendSign(uint16_t bits, int bitCount);
 void updateFlags(uint16_t regMarker);
@@ -156,6 +165,25 @@ int main(int argc, char *argv[])
     }
 
     return 0;
+}
+
+/*
+ * Retrieve a 16-bit value from memory. If the keyboard status register is the address, set the register
+ * based on whether or not an input key has been used.
+ *
+ * return: 16-bit value from memory
+ */
+uint16_t memRead(uint16_t addr)
+{
+    if (addr == DR_KBSR) {
+        if (checkInputKey()) {
+            memory[DR_KBSR] = 0x8000;
+            memory[DR_KBDR] = (uint16_t)getchar();
+        } else {
+            memory[DR_KBSR] = 0;
+        }
+    }
+    return memory[addr];
 }
 
 /*
